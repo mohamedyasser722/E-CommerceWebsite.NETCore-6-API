@@ -147,8 +147,8 @@ To run the project locally:
    ```
 
 2. Just run the project
-   ```bash
-  when you run the project everything will be set for you, including creating the database and seeding it with initial data
+   ```
+    when you run the project everything will be set for you, including creating the database and seeding it with initial data
    ```
 
 ---
