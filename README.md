@@ -1,7 +1,3 @@
-Here's the detailed description for the **Talabat E-Commerce Web API** project based on the controllers, entities, and architecture you've provided:
-
----
-
 ## **Talabat E-Commerce Web API Project**
 
 **Overview:**
