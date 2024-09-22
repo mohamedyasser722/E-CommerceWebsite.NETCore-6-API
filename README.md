@@ -1,106 +1,154 @@
-## **Talabat E-Commerce Web API Project**
+# Talabat API
 
-**Overview:**
-The **Talabat E-Commerce Web API** is designed to manage the core functionalities of an online store, including user authentication, basket handling, product management, order processing, and payment integration via Stripe. It follows a clean, layered architecture utilizing the **Repository Pattern** with **Unit of Work**, ensuring separation of concerns and scalability.
+Welcome to the **Talabat API**! This repository contains the backend logic for an e-commerce platform, providing endpoints for user management, products, orders, payments, and more.
 
-The project is divided into four key layers:
-1. **APIs Layer** (`Talabat.APIs`): Handles incoming HTTP requests, processes them, and returns responses.
-2. **Core Layer** (`Talabat.Core`): Contains the domain entities and service contracts.
-3. **Repository Layer** (`Talabat.Repository`): Handles data access and CRUD operations.
-4. **Service Layer** (`Talabat.Service`): Contains business logic and integrates with third-party services like Stripe.
+## Table of Contents
 
----
-
-### **Controllers Overview:**
-
-1. **AccountController**:
-   - Handles user authentication and registration using **ASP.NET Identity**.
-   - Key endpoints:
-     - `POST /register`: Registers a new user and generates a JWT token.
-     - `POST /login`: Authenticates an existing user and returns a JWT token.
-     - `GET /GetCurrentUser`: Fetches the current logged-in user's details.
-     - `GET /GetCurrentUserAddress`: Retrieves the user's saved address.
-     - `PUT /UpdateUserAddress`: Updates the user's address.
-     - `GET /emailExists`: Checks if an email is already registered.
-
-2. **BasketsController**:
-   - Manages the shopping basket (cart) for users.
-   - Key endpoints:
-     - `GET /{BasketId}`: Fetches an existing basket by its ID or creates a new one if not found.
-     - `POST /`: Updates or creates a new basket based on the provided details.
-     - `DELETE /{BasketId}`: Deletes a specific basket.
-
-3. **ErrorsController**:
-   - Handles application-level errors and returns appropriate error messages with HTTP status codes.
-   - Key endpoint:
-     - `GET /errors/{code}`: Returns a custom error message based on the provided HTTP status code.
-
-4. **OrdersController**:
-   - Manages order placement and retrieval for users.
-   - Key endpoints:
-     - `POST /`: Creates a new order from the user's basket.
-     - `GET /`: Retrieves all orders for the logged-in user.
-     - `GET /{id}`: Fetches a specific order by its ID.
-     - `GET /DeliveryMethods`: Returns available delivery methods.
-
-5. **PaymentController**:
-   - Handles payment processing via Stripe.
-   - Key endpoints:
-     - `POST /basketId`: Creates or updates a payment intent for the user's basket.
-     - `POST /webhook`: Listens to Stripe webhook events (e.g., payment success or failure) to update payment statuses.
-
-6. **ProductController**:
-   - Manages products in the store, allowing for retrieval by category, brand, and product ID.
-   - Key endpoints:
-     - `GET /`: Fetches a paginated list of all products, with filtering options.
-     - `GET /id`: Retrieves a specific product by ID.
-     - `GET /Categories`: Returns a list of product categories.
-     - `GET /Brands`: Returns a list of product brands.
+- [Overview](#overview)
+- [Authentication and Authorization](#authentication-and-authorization)
+- [Controllers](#controllers)
+  - [Account Controller](#account-controller)
+  - [Auth Controller](#auth-controller)
+  - [Products Controller](#products-controller)
+  - [Orders Controller](#orders-controller)
+  - [Payments Controller](#payments-controller)
+  - [Users Controller](#users-controller)
+- [Permissions](#permissions)
+- [Database Schema](#database-schema)
+- [How to Run the Project](#how-to-run-the-project)
 
 ---
 
-### **Entities Overview:**
+## Overview
 
-1. **AppUser**: Represents a user in the system with properties like `DisplayName`, `Email`, `PhoneNumber`, and `Address`.
+The **Talabat API** is a backend system built using ASP.NET Core to support the functionality of managing an e-commerce platform. It includes user management, product listings, order processing, and Stripe-based payment handling.
 
-2. **CustomerBasket**: Represents a user's shopping basket containing items. Each basket has:
-   - `Id`: Basket identifier.
-   - `Items`: List of items in the basket.
-   - `PaymentIntentId`, `ClientSecret`: Fields related to payment processing with Stripe.
+### Core Features:
+- User Authentication & Authorization
+- Product Management
+- Order Creation & Tracking
+- Payment Integration via Stripe
+- Role-based access control
 
-3. **BasketItem**: Represents individual items in the shopping basket, including fields like `Name`, `Brand`, `Category`, `Price`, and `Quantity`.
+## Authentication and Authorization
 
-4. **Product**: Represents an item in the store with details like `Name`, `PictureUrl`, `Price`, `Description`, and its relationships to `ProductCategory` and `ProductBrand`.
+This API uses **JWT tokens** for authentication and role-based authorization to ensure secure access to protected resources. Make sure to include a valid JWT token in your requests' `Authorization` header.
 
-5. **ProductCategory**: Represents product categories like Electronics, Clothing, etc.
+## Controllers
 
-6. **ProductBrand**: Represents product brands like Apple, Samsung, etc.
+### Account Controller
 
-7. **Order**: Represents a user's order with properties like `BuyerEmail`, `ShipToAddress`, and `OrderItems`.
+The `AccountController` handles user account-related operations such as fetching and updating user profile information and changing passwords.
 
-8. **DeliveryMethod**: Represents various delivery options with details like `Price` and `DeliveryTime`.
+- `GET /me`: Fetch current user's profile information.
+- `PUT /me/info`: Update current user's profile.
+- `PUT /me/change-password`: Change the current user's password.
 
----
+### Auth Controller
 
-### **Architecture and Design Patterns:**
+The `AuthController` is responsible for handling user authentication actions such as login, registration, and token management.
 
-- **Repository Pattern**: Each entity has its own repository for data access, ensuring separation between business logic and database interaction. The repositories are managed by the `IUnitOfWork` for atomic transactions.
+- `POST /auth`: Log in with email and password.
+- `POST /auth/refresh`: Refresh an expired JWT token.
+- `POST /auth/register`: Register a new user.
+
+### Products Controller
+
+The `ProductsController` manages operations related to listing, retrieving, adding, updating, and deleting products.
+
+- `GET /api/products`: Fetch all products.
+- `GET /api/products/{id}`: Fetch product details by ID.
+- `POST /api/products`: Create a new product.
+- `PUT /api/products/{id}`: Update an existing product.
+- `DELETE /api/products/{id}`: Delete a product.
+
+### Orders Controller
+
+The `OrdersController` handles order creation, tracking, and management.
+
+- `GET /api/orders`: Fetch all orders.
+- `GET /api/orders/{id}`: Fetch order details by ID.
+- `POST /api/orders`: Create a new order.
+- `PUT /api/orders/{id}`: Update an existing order.
+- `DELETE /api/orders/{id}`: Cancel an order.
+
+### Payments Controller
+
+The `PaymentsController` integrates Stripe to manage payments for orders.
+
+- `POST /api/payments`: Process a payment using Stripe.
+- `GET /api/payments/history`: Get the payment history for a user.
   
-- **Unit of Work**: This design pattern is used to manage database transactions and ensure data consistency. It groups all operations within a transaction, and if one fails, the entire transaction is rolled back.
+### Users Controller
 
-- **AutoMapper**: Used to map between domain entities and DTOs (Data Transfer Objects) to ensure that only necessary data is exposed through the API.
+The `UsersController` manages user-related tasks such as retrieving user information and updating user statuses.
 
-- **ASP.NET Identity**: Provides user management, including authentication and authorization with JWT tokens.
+- `GET /api/users`: Fetch all users.
+- `GET /api/users/{id}`: Get details of a specific user.
+- `POST /api/users`: Create a new user.
+- `PUT /api/users/{id}`: Update an existing user.
+- `PUT /api/users/{id}/toggle-status`: Toggle the active status of a user.
+  
+## Permissions
 
----
+Permissions are enforced at the controller and action level to restrict access based on the user's role and assigned permissions. These permissions are set in attributes such as `[HasPermission(Permissions.AddProduct)]`.
 
-### **Third-Party Integrations:**
+## Database Schema
 
-- **Stripe**: Integrated for payment processing. The API handles creating and updating payment intents for user baskets and listens to Stripe's webhook events to track payment success or failure.
+The **Talabat API** database schema is designed around core entities such as `Product`, `Order`, `Payment`, and `ApplicationUser`. Below is a high-level overview of the tables and relationships.
 
----
+### Key Entities and Relationships:
 
-### **Authentication & Authorization:**
-- The API uses **JWT-based authentication** where users need to register or log in to obtain a token. Some actions, like creating orders or accessing user-specific data, require authorization, which is handled using **ASP.NET Core's `[Authorize]`** attribute.
+- **ApplicationUser**: Represents the system's users, extending ASP.NET Core Identity features. Each user can have many `Orders` and `Payments`.
+  
+  - One-to-Many: `ApplicationUser` ↔ `Order`
+  - One-to-Many: `ApplicationUser` ↔ `Payment`
+
+- **Product**: Contains product information such as name, price, and stock. A product can be associated with many `Orders`.
+  
+  - One-to-Many: `Product` ↔ `Order`
+
+- **Order**: Represents customer purchases. Each order contains references to `Products` and is linked to an `ApplicationUser`.
+  
+  - One-to-Many: `Order` ↔ `Product`
+  - Many-to-One: `Order` ↔ `ApplicationUser`
+
+- **Payment**: Represents a payment made for an order. Each payment is associated with an `Order` and an `ApplicationUser`.
+
+  - One-to-One: `Payment` ↔ `Order`
+  - Many-to-One: `Payment` ↔ `ApplicationUser`
+
+### Database Diagram
+
+The schema can be visualized as follows:
+
+```plaintext
+ApplicationUser
+    ↳ Order (1-N)
+    ↳ Payment (1-N)
+
+Product
+    ↳ Order (1-N)
+
+Order
+    ↳ Product (1-N)
+    ↳ Payment (1-1)
+```
+
+Each arrow (↳) represents a one-to-many (1-N) or one-to-one (1-1) relationship. For example, one `Order` can contain many `Products`, and one `Payment` is linked to one `Order`.
+
+## How to Run the Project
+
+To run the project locally:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-repo/Talabat.Api.git
+   ```
+
+2. Just run the project
+   ```bash
+  when you run the project everything will be set for you, including creating the database and seeding it with initial data
+   ```
 
 ---
